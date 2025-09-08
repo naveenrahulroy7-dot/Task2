@@ -3,6 +3,11 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { EmployeeList } from "@/components/employees/EmployeeList";
+import { DepartmentForm } from "@/components/departments/DepartmentForm";
+import { AttendanceForm } from "@/components/attendance/AttendanceForm";
+import { LeaveRequestForm } from "@/components/leave/LeaveRequestForm";
+import { PayrollForm } from "@/components/payroll/PayrollForm";
+import { ReportsForm } from "@/components/reports/ReportsForm";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -14,40 +19,15 @@ const Index = () => {
       case "employees":
         return <EmployeeList />;
       case "departments":
-        return (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-foreground">Departments</h2>
-            <p className="text-muted-foreground">Department management coming soon. Connect Supabase to enable full functionality.</p>
-          </div>
-        );
+        return <DepartmentForm />;
       case "attendance":
-        return (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-foreground">Attendance</h2>
-            <p className="text-muted-foreground">Attendance tracking coming soon. Connect Supabase to enable full functionality.</p>
-          </div>
-        );
+        return <AttendanceForm />;
       case "leave":
-        return (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-foreground">Leave Requests</h2>
-            <p className="text-muted-foreground">Leave management coming soon. Connect Supabase to enable full functionality.</p>
-          </div>
-        );
+        return <LeaveRequestForm />;
       case "payroll":
-        return (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-foreground">Payroll</h2>
-            <p className="text-muted-foreground">Payroll management coming soon. Connect Supabase to enable full functionality.</p>
-          </div>
-        );
+        return <PayrollForm />;
       case "reports":
-        return (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-foreground">Reports</h2>
-            <p className="text-muted-foreground">Reporting features coming soon. Connect Supabase to enable full functionality.</p>
-          </div>
-        );
+        return <ReportsForm />;
       default:
         return <Dashboard />;
     }
