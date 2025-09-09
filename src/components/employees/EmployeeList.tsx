@@ -19,73 +19,16 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Plus, Search, Filter, Mail, Phone, MoreHorizontal, Edit, Trash2, Eye, User } from "lucide-react";
 import { EmployeeForm } from "./EmployeeForm";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock data - in real app this would come from your database
-const employees = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    email: "sarah.johnson@company.com",
-    phone: "+1 (555) 123-4567",
-    department: "Engineering",
-    position: "Senior Developer",
-    status: "Active",
-    joinDate: "2022-03-15",
-    avatar: "/placeholder.svg"
-  },
-  {
-    id: 2,
-    name: "Michael Chen",
-    email: "michael.chen@company.com",
-    phone: "+1 (555) 234-5678",
-    department: "Marketing",
-    position: "Marketing Manager",
-    status: "Active",
-    joinDate: "2021-08-22",
-    avatar: "/placeholder.svg"
-  },
-  {
-    id: 3,
-    name: "Emily Rodriguez",
-    email: "emily.rodriguez@company.com",
-    phone: "+1 (555) 345-6789",
-    department: "Sales",
-    position: "Sales Representative",
-    status: "On Leave",
-    joinDate: "2023-01-10",
-    avatar: "/placeholder.svg"
-  },
-  {
-    id: 4,
-    name: "David Kim",
-    email: "david.kim@company.com",
-    phone: "+1 (555) 456-7890",
-    department: "Engineering",
-    position: "DevOps Engineer",
-    status: "Active",
-    joinDate: "2022-11-05",
-    avatar: "/placeholder.svg"
-  },
-  {
-    id: 5,
-    name: "Lisa Wang",
-    email: "lisa.wang@company.com",
-    phone: "+1 (555) 567-8901",
-    department: "HR",
-    position: "HR Specialist",
-    status: "Active",
-    joinDate: "2021-06-18",
-    avatar: "/placeholder.svg"
-  },
-];
+import { useAppStore } from "@/store/AppStore";
 
 export function EmployeeList() {
   const { toast } = useToast();
+  const { employees, deleteEmployee } = useAppStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -110,6 +53,7 @@ export function EmployeeList() {
   };
 
   const handleDelete = (employee: any) => {
+    deleteEmployee(employee.id);
     toast({
       title: "Employee Deleted",
       description: `${employee.name} has been removed from the system.`,
@@ -131,6 +75,10 @@ export function EmployeeList() {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add Employee</DialogTitle>
+              <DialogDescription>Fill in the details to add a new employee.</DialogDescription>
+            </DialogHeader>
             <EmployeeForm 
               mode="add" 
               onClose={() => setIsAddDialogOpen(false)} 
@@ -264,6 +212,10 @@ export function EmployeeList() {
       {/* Edit Employee Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Employee</DialogTitle>
+            <DialogDescription>Update the employee information and save your changes.</DialogDescription>
+          </DialogHeader>
           <EmployeeForm 
             mode="edit" 
             employee={selectedEmployee}

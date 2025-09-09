@@ -8,31 +8,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Edit2, Save, X, Upload, User, Mail, Phone, MapPin, Calendar, Briefcase } from "lucide-react";
+import { useAppStore } from "@/store/AppStore";
 
 export function ProfileManagement() {
   const { toast } = useToast();
+  const { profile, updateProfile } = useAppStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "Sarah Johnson",
-    email: "sarah.johnson@company.com",
-    phone: "+1 (555) 123-4567",
-    position: "HR Manager",
-    department: "Human Resources",
-    joinDate: "2021-03-15",
-    address: "123 Main St, New York, NY 10001",
-    bio: "Experienced HR professional with over 8 years in talent management and organizational development.",
-    avatar: "/placeholder.svg",
-  });
-
-  const [editData, setEditData] = useState(profileData);
+  const [editData, setEditData] = useState(profile);
 
   const handleEdit = () => {
-    setEditData(profileData);
+    setEditData(profile);
     setIsEditing(true);
   };
 
   const handleSave = () => {
-    setProfileData(editData);
+    updateProfile(editData);
     setIsEditing(false);
     toast({
       title: "Profile Updated",
@@ -41,7 +31,7 @@ export function ProfileManagement() {
   };
 
   const handleCancel = () => {
-    setEditData(profileData);
+    setEditData(profile);
     setIsEditing(false);
   };
 
@@ -78,7 +68,7 @@ export function ProfileManagement() {
           <CardHeader className="text-center">
             <div className="flex flex-col items-center space-y-4">
               <Avatar className="w-32 h-32">
-                <AvatarImage src={isEditing ? editData.avatar : profileData.avatar} />
+                <AvatarImage src={isEditing ? editData.avatar : profile.avatar} />
                 <AvatarFallback>
                   <User className="w-16 h-16" />
                 </AvatarFallback>
@@ -93,13 +83,13 @@ export function ProfileManagement() {
               
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-primary">
-                  {isEditing ? editData.name : profileData.name}
+                  {isEditing ? editData.name : profile.name}
                 </h2>
                 <p className="text-muted-foreground">
-                  {isEditing ? editData.position : profileData.position}
+                  {isEditing ? editData.position : profile.position}
                 </p>
                 <Badge variant="secondary" className="mt-2">
-                  {isEditing ? editData.department : profileData.department}
+                  {isEditing ? editData.department : profile.department}
                 </Badge>
               </div>
             </div>
@@ -176,7 +166,7 @@ export function ProfileManagement() {
                   <Mail className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{profileData.email}</p>
+                    <p className="font-medium">{profile.email}</p>
                   </div>
                 </div>
                 
@@ -184,7 +174,7 @@ export function ProfileManagement() {
                   <Phone className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="font-medium">{profileData.phone}</p>
+                    <p className="font-medium">{profile.phone}</p>
                   </div>
                 </div>
                 
@@ -192,7 +182,7 @@ export function ProfileManagement() {
                   <MapPin className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">Address</p>
-                    <p className="font-medium">{profileData.address}</p>
+                    <p className="font-medium">{profile.address}</p>
                   </div>
                 </div>
                 
@@ -200,7 +190,7 @@ export function ProfileManagement() {
                   <Calendar className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">Join Date</p>
-                    <p className="font-medium">{new Date(profileData.joinDate).toLocaleDateString()}</p>
+                    <p className="font-medium">{new Date(profile.joinDate).toLocaleDateString()}</p>
                   </div>
                 </div>
                 
@@ -208,7 +198,7 @@ export function ProfileManagement() {
                   <Briefcase className="w-5 h-5 text-muted-foreground mt-1" />
                   <div>
                     <p className="text-sm text-muted-foreground">Bio</p>
-                    <p className="font-medium">{profileData.bio}</p>
+                    <p className="font-medium">{profile.bio}</p>
                   </div>
                 </div>
               </div>
@@ -224,13 +214,13 @@ export function ProfileManagement() {
             <CardTitle>Security Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => toast({ title: "Change Password", description: "This will be enabled after backend setup." })}>
               Change Password
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => toast({ title: "Two-Factor Authentication", description: "Configure after connecting backend (e.g., Supabase)." })}>
               Two-Factor Authentication
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => toast({ title: "Login History", description: "Available once backend is connected." })}>
               Login History
             </Button>
           </CardContent>
@@ -241,13 +231,13 @@ export function ProfileManagement() {
             <CardTitle>Preferences</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => toast({ title: "Notification Settings", description: "Customize after backend setup." })}>
               Notification Settings
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => toast({ title: "Privacy Settings", description: "Configure after backend setup." })}>
               Privacy Settings
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => toast({ title: "Theme Preferences", description: "Switch themes in the app settings." })}>
               Theme Preferences
             </Button>
           </CardContent>

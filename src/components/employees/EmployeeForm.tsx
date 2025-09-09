@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Upload, User } from "lucide-react";
+import { useAppStore } from "@/store/AppStore";
 
 interface EmployeeFormProps {
   onClose?: () => void;
@@ -17,6 +18,7 @@ interface EmployeeFormProps {
 
 export function EmployeeForm({ onClose, employee, mode = 'add' }: EmployeeFormProps) {
   const { toast } = useToast();
+  const { addEmployee, updateEmployee } = useAppStore();
   const [formData, setFormData] = useState({
     name: employee?.name || "",
     email: employee?.email || "",
@@ -32,13 +34,18 @@ export function EmployeeForm({ onClose, employee, mode = 'add' }: EmployeeFormPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Here you would typically save to database via Supabase
+
+    if (mode === 'add') {
+      addEmployee({ ...formData, status: 'Active' });
+    } else if (employee?.id) {
+      updateEmployee(employee.id, { ...formData });
+    }
+
     toast({
       title: mode === 'add' ? "Employee Added" : "Employee Updated",
       description: `${formData.name} has been ${mode === 'add' ? 'added' : 'updated'} successfully.`,
     });
-    
+
     if (onClose) onClose();
   };
 

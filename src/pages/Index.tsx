@@ -9,6 +9,7 @@ import { LeaveRequestForm } from "@/components/leave/LeaveRequestForm";
 import { PayrollForm } from "@/components/payroll/PayrollForm";
 import { ReportsForm } from "@/components/reports/ReportsForm";
 import { ProfileManagement } from "@/components/profile/ProfileManagement";
+import { AppStoreProvider } from "@/store/AppStore";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -37,15 +38,17 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-auto p-6">
-          {renderContent()}
-        </main>
+    <AppStoreProvider>
+      <div className="flex h-screen bg-background">
+        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-auto p-6">
+            {renderContent()}
+          </main>
+        </div>
       </div>
-    </div>
+    </AppStoreProvider>
   );
 };
 

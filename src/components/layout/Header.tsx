@@ -3,8 +3,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useAppStore } from "@/store/AppStore";
 
 export function Header() {
+  const { profile } = useAppStore();
   return (
     <header className="bg-card border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
@@ -28,11 +30,11 @@ export function Header() {
           
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-sm font-medium text-foreground">Sarah Johnson</p>
-              <p className="text-xs text-muted-foreground">HR Manager</p>
+              <p className="text-sm font-medium text-foreground">{profile.name}</p>
+              <p className="text-xs text-muted-foreground">{profile.position}</p>
             </div>
             <Avatar>
-              <AvatarImage src="/placeholder.svg" />
+              <AvatarImage src={profile.avatar} />
               <AvatarFallback>
                 <User className="w-4 h-4" />
               </AvatarFallback>
