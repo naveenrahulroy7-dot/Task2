@@ -14,8 +14,69 @@ export function ProfileManagement() {
   const { toast } = useToast();
   const { profile, updateProfile } = useAppStore();
   const [isEditing, setIsEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [editData, setEditData] = useState(profile);
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File",
+        description: "Please select an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please select an image smaller than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await fetch('http://localhost:3001/api/upload-avatar', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      
+      // Update the avatar URL in edit data
+      const avatarUrl = `http://localhost:3001${result.url}`;
+      setEditData(prev => ({ ...prev, avatar: avatarUrl }));
+
+      toast({
+        title: "Upload Successful",
+        description: "Profile picture uploaded successfully.",
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
   const handleEdit = () => {
     setEditData(profile);
     setIsEditing(true);
@@ -75,10 +136,22 @@ export function ProfileManagement() {
               </Avatar>
               
               {isEditing && (
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  disabled={uploading}
+                  onClick={() => document.getElementById('profile-avatar-upload')?.click()}
+                >
                   <Upload className="w-4 h-4 mr-2" />
-                  Change Photo
+                  {uploading ? 'Uploading...' : 'Change Photo'}
                 </Button>
+                <input
+                  id="profile-avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
               )}
               
               <div className="text-center">

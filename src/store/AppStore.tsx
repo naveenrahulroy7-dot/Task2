@@ -113,31 +113,101 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
   const [profile, setProfile] = useState<Profile>(initialProfile);
 
   const addEmployee = (employee: Partial<Employee>) => {
-    setEmployees((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        status: (employee.status as Employee["status"]) || "Active",
-        avatar: employee.avatar || "/placeholder.svg",
-        name: employee.name || "",
-        email: employee.email || "",
-        phone: employee.phone || "",
-        department: employee.department || "",
-        position: employee.position || "",
-        joinDate: employee.joinDate || new Date().toISOString().substring(0, 10),
-        address: employee.address,
-        salary: employee.salary,
-        emergencyContact: employee.emergencyContact,
+    // Send to backend API
+    fetch('http://localhost:3001/api/employees', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    ]);
+      body: JSON.stringify({
+        ...employee,
+        status: employee.status || "Active",
+        join_date: employee.joinDate || new Date().toISOString().substring(0, 10),
+        emergency_contact: employee.emergencyContact,
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Add to local state
+      setEmployees((prev) => [
+        ...prev,
+        {
+          id: data.id,
+          status: (employee.status as Employee["status"]) || "Active",
+          avatar: employee.avatar || "/placeholder.svg",
+          name: employee.name || "",
+          email: employee.email || "",
+          phone: employee.phone || "",
+          department: employee.department || "",
+          position: employee.position || "",
+          joinDate: employee.joinDate || new Date().toISOString().substring(0, 10),
+          address: employee.address,
+          salary: employee.salary,
+          emergencyContact: employee.emergencyContact,
+        },
+      ]);
+    })
+    .catch(error => {
+      console.error('Error adding employee:', error);
+      // Still add to local state as fallback
+      setEmployees((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          status: (employee.status as Employee["status"]) || "Active",
+          avatar: employee.avatar || "/placeholder.svg",
+          name: employee.name || "",
+          email: employee.email || "",
+          phone: employee.phone || "",
+          department: employee.department || "",
+          position: employee.position || "",
+          joinDate: employee.joinDate || new Date().toISOString().substring(0, 10),
+          address: employee.address,
+          salary: employee.salary,
+          emergencyContact: employee.emergencyContact,
+        },
+      ]);
+    });
   };
 
   const updateEmployee = (id: number, updates: Partial<Employee>) => {
-    setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, ...updates } : e)));
+    // Send to backend API
+    fetch(`http://localhost:3001/api/employees/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...updates,
+        join_date: updates.joinDate,
+        emergency_contact: updates.emergencyContact,
+      }),
+    })
+    .then(() => {
+      // Update local state
+      setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, ...updates } : e)));
+    })
+    .catch(error => {
+      console.error('Error updating employee:', error);
+      // Still update local state as fallback
+      setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, ...updates } : e)));
+    });
   };
 
   const deleteEmployee = (id: number) => {
-    setEmployees((prev) => prev.filter((e) => e.id !== id));
+    // Send to backend API
+    fetch(`http://localhost:3001/api/employees/${id}`, {
+      method: 'DELETE',
+    })
+    .then(() => {
+      // Update local state
+      setEmployees((prev) => prev.filter((e) => e.id !== id));
+    })
+    .catch(error => {
+      console.error('Error deleting employee:', error);
+      // Still update local state as fallback
+      setEmployees((prev) => prev.filter((e) => e.id !== id));
+    });
   };
 
   const updateProfile = (updates: Partial<Profile>) => {

@@ -19,6 +19,7 @@ interface EmployeeFormProps {
 export function EmployeeForm({ onClose, employee, mode = 'add' }: EmployeeFormProps) {
   const { toast } = useToast();
   const { addEmployee, updateEmployee } = useAppStore();
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: employee?.name || "",
     email: employee?.email || "",
@@ -32,6 +33,68 @@ export function EmployeeForm({ onClose, employee, mode = 'add' }: EmployeeFormPr
     avatar: employee?.avatar || "",
   });
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File",
+        description: "Please select an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please select an image smaller than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await fetch('http://localhost:3001/api/upload-avatar', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      
+      // Update the avatar URL in form data
+      setFormData(prev => ({ 
+        ...prev, 
+        avatar: `http://localhost:3001${result.url}` 
+      }));
+
+      toast({
+        title: "Upload Successful",
+        description: "Profile picture uploaded successfully.",
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -75,11 +138,27 @@ export function EmployeeForm({ onClose, employee, mode = 'add' }: EmployeeFormPr
                 Profile Picture
               </Label>
               <div className="flex gap-2 mt-2">
-                <Button type="button" variant="outline" size="sm">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={uploading}
+                  onClick={() => document.getElementById('avatar-upload')?.click()}
+                >
                   <Upload className="w-4 h-4 mr-2" />
-                  Upload Photo
+                  {uploading ? 'Uploading...' : 'Upload Photo'}
                 </Button>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Max file size: 5MB. Supported formats: JPG, PNG, GIF
+              </p>
             </div>
           </div>
 

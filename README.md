@@ -4,6 +4,35 @@
 
 **URL**: https://lovable.dev/projects/217d7758-cc95-47de-a87a-4edef9f7c99b
 
+## HR Management System
+
+This is a comprehensive HR Management System with both frontend and backend components.
+
+### Features
+- Employee Management with image upload
+- Department Management
+- Attendance Tracking
+- Leave Request Management
+- Payroll Management
+- Reports & Analytics
+- Profile Management
+- SQLite Database Backend
+- REST API
+
+### Backend Database View
+
+The system includes a backend server that provides a complete database overview. You can view all data in table format by visiting:
+
+**http://localhost:3001** (when server is running)
+
+This shows:
+- All employees with their details and avatars
+- Department information
+- Attendance records
+- Leave requests
+- Payroll data
+- Statistics and overview
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
@@ -32,9 +61,43 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4a: Start both frontend and backend servers
+npm run dev:full
+
+# OR Step 4b: Start servers separately
+# Terminal 1 - Backend server
+npm run server
+
+# Terminal 2 - Frontend development server
 npm run dev
 ```
+
+### Available Scripts
+
+- `npm run dev` - Start frontend development server (port 8080)
+- `npm run server` - Start backend server (port 3001)
+- `npm run dev:full` - Start both frontend and backend concurrently
+- `npm run build` - Build for production
+
+### API Endpoints
+
+The backend provides the following API endpoints:
+
+- `GET /` - Database overview in HTML table format
+- `GET /api/employees` - Get all employees
+- `POST /api/employees` - Create new employee
+- `PUT /api/employees/:id` - Update employee
+- `DELETE /api/employees/:id` - Delete employee
+- `POST /api/upload-avatar` - Upload avatar image
+- `GET /api/departments` - Get all departments
+
+### Image Upload
+
+The system supports image upload for employee avatars:
+- Maximum file size: 5MB
+- Supported formats: JPG, PNG, GIF
+- Images are stored in `server/uploads/` directory
+- Accessible via `/uploads/filename` URL
 
 **Edit a file directly in GitHub**
 
