@@ -8,6 +8,7 @@ import { AttendanceForm } from "@/components/attendance/AttendanceForm";
 import { LeaveRequestForm } from "@/components/leave/LeaveRequestForm";
 import { PayrollForm } from "@/components/payroll/PayrollForm";
 import { ReportsForm } from "@/components/reports/ReportsForm";
+import { ProfileManagement } from "@/components/profile/ProfileManagement";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -28,6 +29,8 @@ const Index = () => {
         return <PayrollForm />;
       case "reports":
         return <ReportsForm />;
+      case "profile":
+        return <ProfileManagement />;
       default:
         return <Dashboard />;
     }

@@ -19,7 +19,11 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Plus, Search, Filter, Mail, Phone } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Search, Filter, Mail, Phone, MoreHorizontal, Edit, Trash2, Eye, User } from "lucide-react";
+import { EmployeeForm } from "./EmployeeForm";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data - in real app this would come from your database
 const employees = [
@@ -81,8 +85,12 @@ const employees = [
 ];
 
 export function EmployeeList() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const filteredEmployees = employees.filter(employee => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,6 +104,18 @@ export function EmployeeList() {
 
   const departments = [...new Set(employees.map(emp => emp.department))];
 
+  const handleEdit = (employee: any) => {
+    setSelectedEmployee(employee);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = (employee: any) => {
+    toast({
+      title: "Employee Deleted",
+      description: `${employee.name} has been removed from the system.`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -103,10 +123,20 @@ export function EmployeeList() {
           <h2 className="text-3xl font-bold text-foreground">Employees</h2>
           <p className="text-muted-foreground mt-1">Manage your workforce and employee information</p>
         </div>
-        <Button className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Employee
-        </Button>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="w-4 h-4" />
+              Add Employee
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <EmployeeForm 
+              mode="add" 
+              onClose={() => setIsAddDialogOpen(false)} 
+            />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>
@@ -196,7 +226,33 @@ export function EmployeeList() {
                     {new Date(employee.joinDate).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">View</Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(employee)}>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Employee
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleDelete(employee)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Employee
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
@@ -204,6 +260,20 @@ export function EmployeeList() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Edit Employee Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <EmployeeForm 
+            mode="edit" 
+            employee={selectedEmployee}
+            onClose={() => {
+              setIsEditDialogOpen(false);
+              setSelectedEmployee(null);
+            }} 
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -11,7 +11,8 @@ import {
   Clock,
   DollarSign,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  User
 } from "lucide-react";
 
 interface SidebarProps {
@@ -27,6 +28,7 @@ const navigation = [
   { id: 'leave', name: 'Leave Requests', icon: Calendar },
   { id: 'payroll', name: 'Payroll', icon: DollarSign },
   { id: 'reports', name: 'Reports', icon: FileText },
+  { id: 'profile', name: 'Profile', icon: User },
 ];
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
