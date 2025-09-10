@@ -136,22 +136,24 @@ export function ProfileManagement() {
               </Avatar>
               
               {isEditing && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  disabled={uploading}
-                  onClick={() => document.getElementById('profile-avatar-upload')?.click()}
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  {uploading ? 'Uploading...' : 'Change Photo'}
-                </Button>
-                <input
-                  id="profile-avatar-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  className="hidden"
-                />
+                <>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    disabled={uploading}
+                    onClick={() => document.getElementById('profile-avatar-upload')?.click()}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploading ? 'Uploading...' : 'Change Photo'}
+                  </Button>
+                  <input
+                    id="profile-avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                  />
+                </>
               )}
               
               <div className="text-center">
