@@ -107,6 +107,39 @@ class Database {
       )
     `);
 
+    // Create reports table
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        type TEXT NOT NULL,
+        description TEXT,
+        generated_on DATE,
+        period TEXT,
+        status TEXT DEFAULT 'Generated',
+        file_size TEXT,
+        file_path TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create user_profiles table
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS user_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        phone TEXT,
+        position TEXT,
+        department TEXT,
+        join_date DATE,
+        address TEXT,
+        bio TEXT,
+        avatar TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
     // Insert sample data
     this.insertSampleData();
   }
@@ -157,6 +190,94 @@ class Database {
         });
         deptStmt.finalize();
 
+        // Insert sample attendance records
+        const attendanceRecords = [
+          [1, 'Sarah Johnson', '2024-01-15', '09:00', '17:30', 8.5, 0.5, 'Present'],
+          [2, 'Michael Chen', '2024-01-15', '09:15', '17:00', 7.75, 0, 'Late'],
+          [3, 'Emily Rodriguez', '2024-01-15', null, null, 0, 0, 'Absent'],
+          [4, 'David Kim', '2024-01-15', '09:00', '18:00', 9, 1, 'Present'],
+          [5, 'Lisa Wang', '2024-01-15', '09:00', '13:00', 4, 0, 'Half Day']
+        ];
+
+        const attStmt = this.db.prepare(`
+          INSERT INTO attendance (employee_id, employee_name, date, check_in, check_out, hours_worked, overtime, status)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+
+        attendanceRecords.forEach(record => {
+          attStmt.run(record);
+        });
+        attStmt.finalize();
+
+        // Insert sample leave requests
+        const leaveRequests = [
+          [1, 'Sarah Johnson', 'Annual Leave', '2024-01-20', '2024-01-25', 6, 'Family vacation', 'Approved', '2024-01-10'],
+          [2, 'Michael Chen', 'Sick Leave', '2024-01-18', '2024-01-19', 2, 'Medical appointment', 'Pending', '2024-01-15'],
+          [3, 'Emily Rodriguez', 'Personal Leave', '2024-01-22', '2024-01-22', 1, 'Personal emergency', 'Rejected', '2024-01-16']
+        ];
+
+        const leaveStmt = this.db.prepare(`
+          INSERT INTO leave_requests (employee_id, employee_name, leave_type, start_date, end_date, days, reason, status, applied_on)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+
+        leaveRequests.forEach(request => {
+          leaveStmt.run(request);
+        });
+        leaveStmt.finalize();
+
+        // Insert sample payroll records
+        const payrollRecords = [
+          [1, 'Sarah Johnson', 'Senior Developer', 5000, 500, 200, 100, 5600, 840, 4760, 'January 2024', 'Paid'],
+          [2, 'Michael Chen', 'Marketing Manager', 6000, 600, 0, 50, 6550, 982.5, 5567.5, 'January 2024', 'Processed'],
+          [4, 'David Kim', 'DevOps Engineer', 4000, 400, 300, 80, 4620, 693, 3927, 'January 2024', 'Pending']
+        ];
+
+        const payrollStmt = this.db.prepare(`
+          INSERT INTO payroll (employee_id, employee_name, position, basic_salary, allowances, overtime, deductions, gross_pay, tax_deduction, net_pay, pay_period, status)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+
+        payrollRecords.forEach(record => {
+          payrollStmt.run(record);
+        });
+        payrollStmt.finalize();
+
+        // Insert sample reports
+        const reports = [
+          ['Monthly Payroll Report - January 2024', 'Payroll', 'Complete payroll summary including taxes and deductions', '2024-01-31', 'January 2024', 'Generated', '2.3 MB', '/reports/payroll_jan_2024.pdf'],
+          ['Employee Attendance Summary - Q1 2024', 'Attendance', 'Quarterly attendance analysis with overtime calculations', '2024-01-15', 'Q1 2024', 'Generated', '1.8 MB', '/reports/attendance_q1_2024.pdf'],
+          ['Leave Requests Analysis - 2023', 'Leave', 'Annual leave patterns and approval statistics', '2024-01-10', '2023', 'Processing', null, null]
+        ];
+
+        const reportStmt = this.db.prepare(`
+          INSERT INTO reports (title, type, description, generated_on, period, status, file_size, file_path)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+
+        reports.forEach(report => {
+          reportStmt.run(report);
+        });
+        reportStmt.finalize();
+
+        // Insert sample user profile
+        const profileStmt = this.db.prepare(`
+          INSERT INTO user_profiles (name, email, phone, position, department, join_date, address, bio, avatar)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+
+        profileStmt.run([
+          'Sarah Johnson',
+          'sarah.johnson@company.com',
+          '+1 (555) 123-4567',
+          'HR Manager',
+          'Human Resources',
+          '2021-03-15',
+          '123 Main St, New York, NY 10001',
+          'Experienced HR professional with over 8 years in talent management and organizational development.',
+          '/placeholder.svg'
+        ]);
+        profileStmt.finalize();
         console.log('Sample data inserted successfully');
       }
     });
@@ -213,6 +334,84 @@ class Database {
     this.db.all("SELECT * FROM payroll ORDER BY created_at DESC", callback);
   }
 
+  createPayroll(payrollData, callback) {
+    const { employee_id, employee_name, position, basic_salary, allowances, overtime, deductions, gross_pay, tax_deduction, net_pay, pay_period, status } = payrollData;
+    this.db.run(`
+      INSERT INTO payroll (employee_id, employee_name, position, basic_salary, allowances, overtime, deductions, gross_pay, tax_deduction, net_pay, pay_period, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [employee_id, employee_name, position, basic_salary, allowances, overtime, deductions, gross_pay, tax_deduction, net_pay, pay_period, status], callback);
+  }
+
+  // Attendance operations
+  createAttendance(attendanceData, callback) {
+    const { employee_id, employee_name, date, check_in, check_out, hours_worked, overtime, status } = attendanceData;
+    this.db.run(`
+      INSERT INTO attendance (employee_id, employee_name, date, check_in, check_out, hours_worked, overtime, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [employee_id, employee_name, date, check_in, check_out, hours_worked, overtime, status], callback);
+  }
+
+  // Leave request operations
+  createLeaveRequest(leaveData, callback) {
+    const { employee_id, employee_name, leave_type, start_date, end_date, days, reason, status, applied_on } = leaveData;
+    this.db.run(`
+      INSERT INTO leave_requests (employee_id, employee_name, leave_type, start_date, end_date, days, reason, status, applied_on)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [employee_id, employee_name, leave_type, start_date, end_date, days, reason, status, applied_on], callback);
+  }
+
+  updateLeaveRequestStatus(id, status, callback) {
+    this.db.run("UPDATE leave_requests SET status = ? WHERE id = ?", [status, id], callback);
+  }
+
+  // Department operations
+  createDepartment(deptData, callback) {
+    const { name, description, manager, employee_count, status } = deptData;
+    this.db.run(`
+      INSERT INTO departments (name, description, manager, employee_count, status)
+      VALUES (?, ?, ?, ?, ?)
+    `, [name, description, manager, employee_count, status], callback);
+  }
+
+  updateDepartment(id, deptData, callback) {
+    const { name, description, manager, employee_count, status } = deptData;
+    this.db.run(`
+      UPDATE departments 
+      SET name = ?, description = ?, manager = ?, employee_count = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `, [name, description, manager, employee_count, status, id], callback);
+  }
+
+  deleteDepartment(id, callback) {
+    this.db.run("DELETE FROM departments WHERE id = ?", [id], callback);
+  }
+
+  // Reports operations
+  getAllReports(callback) {
+    this.db.all("SELECT * FROM reports ORDER BY created_at DESC", callback);
+  }
+
+  createReport(reportData, callback) {
+    const { title, type, description, generated_on, period, status, file_size, file_path } = reportData;
+    this.db.run(`
+      INSERT INTO reports (title, type, description, generated_on, period, status, file_size, file_path)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [title, type, description, generated_on, period, status, file_size, file_path], callback);
+  }
+
+  // User profile operations
+  getUserProfile(callback) {
+    this.db.get("SELECT * FROM user_profiles ORDER BY created_at DESC LIMIT 1", callback);
+  }
+
+  updateUserProfile(profileData, callback) {
+    const { name, email, phone, position, department, join_date, address, bio, avatar } = profileData;
+    this.db.run(`
+      UPDATE user_profiles 
+      SET name = ?, email = ?, phone = ?, position = ?, department = ?, join_date = ?, address = ?, bio = ?, avatar = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = 1
+    `, [name, email, phone, position, department, join_date, address, bio, avatar], callback);
+  }
   // Get all tables data for admin view
   getAllTablesData(callback) {
     const result = {};
@@ -237,7 +436,17 @@ class Database {
               if (err) return callback(err);
               result.payroll = payroll;
               
-              callback(null, result);
+              this.getAllReports((err, reports) => {
+                if (err) return callback(err);
+                result.reports = reports;
+                
+                this.getUserProfile((err, profile) => {
+                  if (err) return callback(err);
+                  result.user_profile = profile;
+                  
+                  callback(null, result);
+                });
+              });
             });
           });
         });

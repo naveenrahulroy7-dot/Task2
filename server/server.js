@@ -179,6 +179,14 @@ app.get('/', (req, res) => {
                 <div class="stat-number">${data.leave_requests?.length || 0}</div>
                 <div class="stat-label">Leave Requests</div>
               </div>
+              <div class="stat-card">
+                <div class="stat-number">${data.payroll?.length || 0}</div>
+                <div class="stat-label">Payroll Records</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">${data.reports?.length || 0}</div>
+                <div class="stat-label">Reports Generated</div>
+              </div>
             </div>
           </div>
     `;
@@ -308,6 +316,120 @@ app.get('/', (req, res) => {
         </div>
       `;
     }
+    // Payroll table
+    if (data.payroll && data.payroll.length > 0) {
+      html += `
+        <div class="section">
+          <h2>Payroll Records (${data.payroll.length})</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Employee</th>
+                <th>Position</th>
+                <th>Basic Salary</th>
+                <th>Gross Pay</th>
+                <th>Net Pay</th>
+                <th>Period</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      data.payroll.forEach(pay => {
+        html += `
+          <tr>
+            <td>${pay.id}</td>
+            <td>${pay.employee_name}</td>
+            <td>${pay.position}</td>
+            <td>$${pay.basic_salary?.toLocaleString() || 0}</td>
+            <td>$${pay.gross_pay?.toLocaleString() || 0}</td>
+            <td>$${pay.net_pay?.toLocaleString() || 0}</td>
+            <td>${pay.pay_period}</td>
+            <td class="status-${pay.status.toLowerCase().replace(' ', '-')}">${pay.status}</td>
+          </tr>
+        `;
+      });
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // Reports table
+    if (data.reports && data.reports.length > 0) {
+      html += `
+        <div class="section">
+          <h2>Generated Reports (${data.reports.length})</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Period</th>
+                <th>Generated On</th>
+                <th>Status</th>
+                <th>File Size</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      data.reports.forEach(report => {
+        html += `
+          <tr>
+            <td>${report.id}</td>
+            <td>${report.title}</td>
+            <td>${report.type}</td>
+            <td>${report.period}</td>
+            <td>${report.generated_on}</td>
+            <td class="status-${report.status.toLowerCase().replace(' ', '-')}">${report.status}</td>
+            <td>${report.file_size || 'N/A'}</td>
+          </tr>
+        `;
+      });
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // User Profile section
+    if (data.user_profile) {
+      html += `
+        <div class="section">
+          <h2>User Profile</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Position</th>
+                <th>Department</th>
+                <th>Join Date</th>
+                <th>Phone</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${data.user_profile.name}</td>
+                <td>${data.user_profile.email}</td>
+                <td>${data.user_profile.position}</td>
+                <td>${data.user_profile.department}</td>
+                <td>${data.user_profile.join_date}</td>
+                <td>${data.user_profile.phone}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
 
     html += `
         </div>
@@ -407,6 +529,145 @@ app.get('/api/departments', (req, res) => {
   });
 });
 
+app.post('/api/departments', (req, res) => {
+  db.createDepartment(req.body, function(err) {
+    if (err) {
+      console.error('Error creating department:', err);
+      return res.status(500).json({ error: 'Failed to create department' });
+    }
+    res.json({ id: this.lastID, message: 'Department created successfully' });
+  });
+});
+
+app.put('/api/departments/:id', (req, res) => {
+  db.updateDepartment(req.params.id, req.body, function(err) {
+    if (err) {
+      console.error('Error updating department:', err);
+      return res.status(500).json({ error: 'Failed to update department' });
+    }
+    res.json({ message: 'Department updated successfully' });
+  });
+});
+
+app.delete('/api/departments/:id', (req, res) => {
+  db.deleteDepartment(req.params.id, function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to delete department' });
+    }
+    res.json({ message: 'Department deleted successfully' });
+  });
+});
+
+// Attendance routes
+app.get('/api/attendance', (req, res) => {
+  db.getAllAttendance((err, attendance) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to fetch attendance' });
+    }
+    res.json(attendance);
+  });
+});
+
+app.post('/api/attendance', (req, res) => {
+  db.createAttendance(req.body, function(err) {
+    if (err) {
+      console.error('Error creating attendance:', err);
+      return res.status(500).json({ error: 'Failed to create attendance record' });
+    }
+    res.json({ id: this.lastID, message: 'Attendance record created successfully' });
+  });
+});
+
+// Leave request routes
+app.get('/api/leave-requests', (req, res) => {
+  db.getAllLeaveRequests((err, requests) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to fetch leave requests' });
+    }
+    res.json(requests);
+  });
+});
+
+app.post('/api/leave-requests', (req, res) => {
+  db.createLeaveRequest(req.body, function(err) {
+    if (err) {
+      console.error('Error creating leave request:', err);
+      return res.status(500).json({ error: 'Failed to create leave request' });
+    }
+    res.json({ id: this.lastID, message: 'Leave request created successfully' });
+  });
+});
+
+app.put('/api/leave-requests/:id/status', (req, res) => {
+  const { status } = req.body;
+  db.updateLeaveRequestStatus(req.params.id, status, function(err) {
+    if (err) {
+      console.error('Error updating leave request status:', err);
+      return res.status(500).json({ error: 'Failed to update leave request status' });
+    }
+    res.json({ message: 'Leave request status updated successfully' });
+  });
+});
+
+// Payroll routes
+app.get('/api/payroll', (req, res) => {
+  db.getAllPayroll((err, payroll) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to fetch payroll' });
+    }
+    res.json(payroll);
+  });
+});
+
+app.post('/api/payroll', (req, res) => {
+  db.createPayroll(req.body, function(err) {
+    if (err) {
+      console.error('Error creating payroll:', err);
+      return res.status(500).json({ error: 'Failed to create payroll record' });
+    }
+    res.json({ id: this.lastID, message: 'Payroll record created successfully' });
+  });
+});
+
+// Reports routes
+app.get('/api/reports', (req, res) => {
+  db.getAllReports((err, reports) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to fetch reports' });
+    }
+    res.json(reports);
+  });
+});
+
+app.post('/api/reports', (req, res) => {
+  db.createReport(req.body, function(err) {
+    if (err) {
+      console.error('Error creating report:', err);
+      return res.status(500).json({ error: 'Failed to create report' });
+    }
+    res.json({ id: this.lastID, message: 'Report created successfully' });
+  });
+});
+
+// User profile routes
+app.get('/api/profile', (req, res) => {
+  db.getUserProfile((err, profile) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+    res.json(profile);
+  });
+});
+
+app.put('/api/profile', (req, res) => {
+  db.updateUserProfile(req.body, function(err) {
+    if (err) {
+      console.error('Error updating profile:', err);
+      return res.status(500).json({ error: 'Failed to update profile' });
+    }
+    res.json({ message: 'Profile updated successfully' });
+  });
+});
 // Error handling middleware
 app.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {

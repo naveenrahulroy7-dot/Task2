@@ -112,6 +112,50 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [profile, setProfile] = useState<Profile>(initialProfile);
 
+  // Load data from backend on component mount
+  React.useEffect(() => {
+    // Load employees from backend
+    fetch('http://localhost:3001/api/employees')
+      .then(response => response.json())
+      .then(data => {
+        const formattedEmployees = data.map((emp: any) => ({
+          id: emp.id,
+          name: emp.name,
+          email: emp.email,
+          phone: emp.phone,
+          department: emp.department,
+          position: emp.position,
+          status: emp.status as Employee["status"],
+          joinDate: emp.join_date,
+          avatar: emp.avatar ? `http://localhost:3001/uploads/${path.basename(emp.avatar)}` : "/placeholder.svg",
+          address: emp.address,
+          salary: emp.salary,
+          emergencyContact: emp.emergency_contact,
+        }));
+        setEmployees(formattedEmployees);
+      })
+      .catch(error => console.error('Error loading employees:', error));
+
+    // Load profile from backend
+    fetch('http://localhost:3001/api/profile')
+      .then(response => response.json())
+      .then(data => {
+        if (data) {
+          setProfile({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            position: data.position,
+            department: data.department,
+            joinDate: data.join_date,
+            address: data.address,
+            bio: data.bio,
+            avatar: data.avatar ? `http://localhost:3001/uploads/${path.basename(data.avatar)}` : "/placeholder.svg",
+          });
+        }
+      })
+      .catch(error => console.error('Error loading profile:', error));
+  }, []);
   const addEmployee = (employee: Partial<Employee>) => {
     // Send to backend API
     fetch('http://localhost:3001/api/employees', {
@@ -211,7 +255,26 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
   };
 
   const updateProfile = (updates: Partial<Profile>) => {
-    setProfile((prev) => ({ ...prev, ...updates }));
+    // Send to backend API
+    fetch('http://localhost:3001/api/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...updates,
+        join_date: updates.joinDate,
+      }),
+    })
+    .then(() => {
+      // Update local state
+      setProfile((prev) => ({ ...prev, ...updates }));
+    })
+    .catch(error => {
+      console.error('Error updating profile:', error);
+      // Still update local state as fallback
+      setProfile((prev) => ({ ...prev, ...updates }));
+    });
   };
 
   const value = useMemo(
