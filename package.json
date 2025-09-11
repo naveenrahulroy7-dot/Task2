@@ -8,8 +8,8 @@
     "server": "node server/server.js",
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
     "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "lint": "eslint .",
+    "server": "cd server && node server.js",
+    "dev:full": "concurrently \"npm run server\" \"npm run dev\" --kill-others-on-fail"
     "preview": "vite preview"
   },
   "dependencies": {

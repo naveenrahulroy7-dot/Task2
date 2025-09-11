@@ -135,7 +135,10 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
         }));
         setEmployees(formattedEmployees);
       })
-      .catch(error => console.error('Error loading employees:', error));
+      .catch(error => {
+        console.error('Error loading employees:', error);
+        // Keep using initial employees data if backend is unavailable
+      });
 
     // Load profile from backend
     fetch('http://localhost:3001/api/profile')
@@ -156,7 +159,10 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
           });
         }
       })
-      .catch(error => console.error('Error loading profile:', error));
+      .catch(error => {
+        console.error('Error loading profile:', error);
+        // Keep using initial profile data if backend is unavailable
+      });
   }, []);
   const addEmployee = (employee: Partial<Employee>) => {
     // Send to backend API
