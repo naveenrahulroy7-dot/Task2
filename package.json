@@ -5,11 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 8080",
-    "server": "node server/server.js",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
     "build": "vite build",
     "server": "cd server && node server.js",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\" --kill-others-on-fail"
+    "dev:full": "concurrently \"npm run server\" \"npm run dev\" --kill-others-on-fail",
     "preview": "vite preview"
   },
   "dependencies": {
