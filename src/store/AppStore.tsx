@@ -128,6 +128,7 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
           status: emp.status as Employee["status"],
           joinDate: emp.join_date,
           avatar: emp.avatar ? `http://localhost:3001/uploads/${path.basename(emp.avatar)}` : "/placeholder.svg",
+          avatar: emp.avatar ? `http://localhost:3001/uploads/${emp.avatar}` : "/placeholder.svg",
           address: emp.address,
           salary: emp.salary,
           emergencyContact: emp.emergency_contact,
@@ -151,6 +152,7 @@ export const AppStoreProvider: React.FC<React.PropsWithChildren> = ({ children }
             address: data.address,
             bio: data.bio,
             avatar: data.avatar ? `http://localhost:3001/uploads/${path.basename(data.avatar)}` : "/placeholder.svg",
+            avatar: data.avatar ? `http://localhost:3001/uploads/${data.avatar}` : "/placeholder.svg",
           });
         }
       })
